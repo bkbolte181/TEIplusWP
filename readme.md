@@ -11,6 +11,8 @@ Upload your file through the TEI + WP plugin admin page. Remember the name of th
      @teipluswp:red-diary.xml
 
 Substitute your file's name into the last bit. When you view your page, it should display an iframe containing your file.
-Pagination requires some legwork in your XML file. Put the tags <teipluswp n="Section Name"></teipluswp> around your desired pages, and they will be added to the drop-down menu at the top of the iframe. If you don't include the "n" tag, the drop-down menu will just use the first 30 characters of the section. Make sure that these tags are still well-formed. The file demo.xml can be used for reference.
+
+#Pagination
+Pagination requires some legwork in your XML file. Put the tags &lt;teipluswp n="Section Name"&gt;&lt;/teipluswp&gt; around your desired pages, and they will be added to the drop-down menu at the top of the iframe. If you don't include the "n" tag, the drop-down menu will just use the first 30 characters of the section. Make sure that these tags are still well-formed. The file demo.xml can be used for reference.
 
 Anyways, hope it works alright. It's still a work in progress. E-mail me at b.k.bolte@emory.edu with suggestions.
