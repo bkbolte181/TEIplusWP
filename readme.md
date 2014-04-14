@@ -15,7 +15,7 @@ Substitute your file's name into the last bit. When you view your page, it shoul
 #Pagination
 Pagination requires some legwork in your XML file. Put the tags
 
-     &#60;teipluswp n="Section Name"&#62; &#60;/teipluswp&#62;
+     <teipluswp n="Section Name"> </teipluswp>
 
 around your desired pages, and they will be added to the drop-down menu at the top of the iframe. If you don't include the "n" tag, the drop-down menu will just use the first 30 characters of the section. Make sure that these tags are still well-formed. The file demo.xml can be used for reference.
 
