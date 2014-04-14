@@ -45,21 +45,14 @@ if (!function_exists('main_teiwp')) {
     foreach ($filesOnServer as $file) {
       if (preg_match('~teipluswp:'.$file.'~', $content)) {
       $content = preg_replace('#@teipluswp:'.$file.'#',
-      			      '<br><br><div id="div_frame_wrapper"><iframe class="teidoc" src="/wp-content/plugins/teipluswp/content/'.$file.'"></iframe></div><br>',
+      			      '<br><br>
+<iframe
+  class="teidoc"
+  allowtransparency="true"
+  scrolling="yes"
+  src="/wp-content/plugins/teipluswp/content/'.$file.'">
+</iframe><br>',
       			      $content);
-      }
-    }
-    preg_match_all('~@teipluswp:beginxml<(.+?)>(.+?)@teipluswp:endxml~s', $content, $xmlarray);
-    // Makes a new xml file from the user's data
-    for ($i = 0; $i < count($xmlarray[1]); ++$i) {
-      $my_file = $xmlarray[1][$i] . ".xml";
-      $handle = fopen($my_file, "w") or die('Cannot open file: ' . $my_file);
-      fwrite($handle, $xmlarray[2][$i]);
-      fclose($handle);
-      if (current_user_can('manage_options')) {
-	$content = preg_replace('~@teipluswp:beginxml<'.$xmlarray[1][$i].'>(.+?)@teipluswp:endxml~s', '<b>Wrote file</b> <i>' . $my_file . '</i> <b>to server.</b><br><br><div id="div_frame_wrapper"><iframe class="teidoc" src="/wp-content/plugins/teipluswp/content/'.$my_file.'"></iframe></div><br>', $content);
-      } else {
-	$content = preg_replace('~@teipluswp:beginxml<'.$xmlarray[1][$i].'>(.+?)@teipluswp:endxml~s', '<br><br><div id="div_frame_wrapper"><iframe class="teidoc" src="/wp-content/plugins/teipluswp/content/'.$my_file.'"></iframe></div><br>', $content);
       }
     }
     if (current_user_can('manage_options')) {
@@ -72,21 +65,30 @@ if (!function_exists('main_teiwp')) {
   }
 }
 
+if (!function_exists('tei_jscript')) {
+  
+  function tei_jscript() {
+    /* For javascript functions.
+     * resizeToFit(obj) resizes iframes so that they fit all their content.
+     */
+    echo '<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+<script>
+  function resizeToFit(obj) {
+    obj.style.height = "0px";
+    obj.style.height = (obj.contentWindow.document.body.scrollHeight) + "px";
+  }
+</script>
+';
+  }
+}
+
+add_action('wp_head', 'tei_jscript');
+
 if (!function_exists('tei_css')) {
   function tei_css() {
-    echo "<style type='text/css'>
-#div_frame_wrapper { width:950px; height:390px; padding:0; overflow:hidden; }
-.teidoc { width:950px; height:500px; }
-.teidoc {
--ms-zoom: 0.75;
--moz-transform: scale(0.75);
--moz-transform-origin: 0 0;
--o-transform: scale(0.75);
--o-transform-origin: 0 0;
--webkit-transform: scale(0.75);
--webkit-transform-origin: 0 0;
-}
-    </style>";
+    echo '<style type="text/css">
+.teidoc { width:150%; height:700px; }
+    </style>';
   }
 }
 

@@ -25,7 +25,7 @@
 	
 	<xsl:param name="teibpHome" select="'http://dcl.slis.indiana.edu/teibp/'"/>
 	<xsl:param name="inlineCSS" select="true()"/>
-	<xsl:param name="includeToolbox" select="true()"/>
+	<xsl:param name="includeToolbox" select="false()"/>
 	<xsl:param name="includeAnalytics" select="true()"/>
 	<xsl:param name="displayPageBreaks" select="true()"/>
 	
@@ -68,7 +68,8 @@
 	<xsl:template match="/" name="htmlShell" priority="99">
 		<html>
 			<xsl:call-template name="htmlHead"/>
-			<body>
+			<body onload="populateDropdown()">
+			        <xsl:copy-of select="$navigation"/>
 				<xsl:if test="$includeToolbox = true()">
 					<xsl:call-template name="teibpToolbox"/>
 				</xsl:if>
@@ -86,7 +87,7 @@
 				document.</xd:p>
 		</xd:desc>
 	</xd:doc>
-
+	
 	<xsl:template match="@*">
 		<!-- copy select elements -->
 		<xsl:copy>
@@ -179,7 +180,7 @@
 		</xd:desc>
 	</xd:doc>
 	<xsl:template match="tei:ref[@target]" priority="99">
-		<a href="{@target}">
+		<a onclick="gotoPage('{substring(@target, 2)}')" href="#">
 			<xsl:call-template name="rendition"/>
 			<xsl:apply-templates/>
 		</a>
@@ -309,13 +310,56 @@
 			<script type="text/javascript" src="{$jqueryBlockUIJS}"></script>
 			<script type="text/javascript" src="{$teibpJS}"></script>
 			<script type="text/javascript">
+				var element_tag = "teipluswp";
 				$(document).ready(function() {
 					$("html > head > title").text($("TEI > teiHeader > fileDesc > titleStmt > title:first").text());
 					$.unblockUI();	
 				});
+				function gotoPage(page) {
+				  if (page != "first") {
+				    var elements = document.getElementsByTagName("TEI")[0].getElementsByTagName(element_tag)
+				    for (i=elements.length; i>0; i--) {
+				      element = elements.length - i;
+				      elements[element].style.display = "none";
+				    }
+				    current = document.getElementById(page);
+				    current.style.display = "block";
+				    kids = current.getElementsByTagName(element_tag);
+				    if (kids.length > 0) {
+				      for (i=kids.length; i>0; i--) {
+				        element = kids.length - i;
+				        kids[element].style.display = "block";
+				      }
+				    }
+				    temp = current;
+				    while (temp.parentNode != null) { // Makes all parent nodes visible
+				      temp.style.display = "block";
+				      temp = temp.parentNode;
+				    }
+				    document.getElementById("dropdownMenu").value = page;
+				  }
+				}
+				function populateDropdown() {
+				  var first_page = document.getElementsByTagName("TEI")[0].getElementsByTagName(element_tag)[0].id;
+				  gotoPage(first_page);
+				  var menu = document.getElementById("dropdownMenu");
+				  var root = document.getElementsByTagName("TEI")[0];
+				  var options = root.getElementsByTagName(element_tag);
+				  for (i=options.length; i>=0; i--) {
+				    element = options.length - i;
+				    if (options[element].getAttribute("n") != null) {
+				      menu[menu.length] = new Option(options[element].getAttribute("n"), options[element].id);
+				    } else if (options[element].getAttribute("type") != null) {
+				      menu[menu.length] = new Option(options[element].getAttribute("type"), options[element].id);
+				    } else {
+				      menu[menu.length] = new Option(options[element].textContent.substring(0, 40), options[element].id);
+				    }
+				  }
+				}
 			</script>
 		  <xsl:call-template name="tagUsage2style"/>
 			<xsl:call-template name="rendition2style"/>
+			<title><!-- don't leave empty. --></title>
 			<xsl:if test="$includeAnalytics = true()">
 				<xsl:call-template name="analytics"/>
 			</xsl:if>
@@ -390,10 +434,18 @@
 			<xd:p>Template for adding footer to html document.</xd:p>
 		</xd:desc>
 	</xd:doc>
+	<xsl:variable name="navigation">
+		<header>
+		  <select id="dropdownMenu" name="select1" onchange="gotoPage(this.value)">
+		    <option value="first">Select Page</option>
+		  </select>
+		  <noscript><input type="submit" value="Go" name="submit1"/></noscript>
+		</header>
+	</xsl:variable>
 	<xsl:variable name="htmlFooter">
-		<footer> Powered by <a href="{$teibpHome}">TEI Boilerplate</a>. TEI Boilerplate is licensed under a <a
-				href="http://creativecommons.org/licenses/by/3.0/">Creative Commons Attribution 3.0
-				Unported License</a>. <a href="http://creativecommons.org/licenses/by/3.0/"><img
+		<footer> Powered by <a href="{$teibpHome}" target="_top">TEI Boilerplate</a>. TEI Boilerplate is licensed under a <a
+				href="http://creativecommons.org/licenses/by/3.0/" target="_top">Creative Commons Attribution 3.0
+				Unported License</a>. <a href="http://creativecommons.org/licenses/by/3.0/" target="_top"><img
 					alt="Creative Commons License" style="border-width:0;"
 					src="http://i.creativecommons.org/l/by/3.0/80x15.png"/></a>
 		</footer>

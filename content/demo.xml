@@ -256,6 +256,7 @@
   </teiHeader>
   <text>
     <body>
+      <teipluswp n="Nested Divs">
       <div>
         <head>Nested <gi>div</gi> elements and headings</head>
         <p>
@@ -286,6 +287,8 @@
           </div>
         </div>
       </div>
+      </teipluswp>
+      <teipluswp n="Lists">
       <div>
         <head>Lists</head>
         <list>
@@ -341,6 +344,8 @@
           </item>
         </list>
       </div>
+      </teipluswp>
+      <teipluswp n="Tables">
       <div>
         <head>Tables</head>
         <note>Table examples are taken, with minor modifications, from the <ref target="http://www.tei-c.org/release/doc/tei-p5-doc/en/html/FT.html">TEI P5 Guidelines</ref>.</note>
@@ -405,6 +410,8 @@
           </row>
         </table>
       </div>
+      </teipluswp>
+      <teipluswp n="Janus-Faced elements">
       <div>
         <head><gi>choice</gi> and the <soCalled>Janus-Faced</soCalled> elements</head>
         <p><gi>choice</gi> is commonly used to group a pair of the so-called <soCalled>Janus-Faced</soCalled> elements, e.g., <gi>orig</gi> &amp; <gi>reg</gi>, <gi>abbr</gi> &amp; <gi>expan</gi>, or <gi>sic</gi> &amp; <gi>corr</gi>.</p>
@@ -414,6 +421,8 @@
             The <title><choice><abbr>TEI</abbr><expan>Text Encoding Initiative</expan></choice> Guidelines</title> may be used to encode a wide <choice><sic>vareity</sic><corr>variety</corr></choice> of document types and genres.</quote>
         </p>
       </div>
+      </teipluswp>
+      <teipluswp n="Verse inside floatingText">
       <div>
         <head>Verse inside <gi>floatingText</gi></head>
         <head style="font-size:12pt">and facsimile page images<lb/> <code>&lt;pb facs="../images/page01.jpg"/></code></head>
@@ -558,11 +567,15 @@
           </body>
           <back><div n="[notes]"/></back></floatingText>
       </div>
+    </teipluswp>
+    <teipluswp n="Quotation Marks">
       <div>
         <head>Automatic generation of quotation marks for nested <gi>q</gi>, <gi>quote</gi>, and <gi>soCalled</gi></head>
         <p>Michael said, <q>Those so-called <soCalled>superheroes</soCalled> just screamed, <q>Avengers Assemble!</q></q>
         </p>
       </div>
+    </teipluswp>
+    <teipluswp n="Bibliography">
       <div>
         <head>Bibliography</head>
         <div xml:id="works_cited">
@@ -579,6 +592,8 @@
           </listBibl>
         </div>
       </div>
+    </teipluswp>
+    <teipluswp n="Code in egXML">
       <div>
         <head>Code in <gi>egXML</gi></head>
         <egXML xmlns="http://www.tei-c.org/ns/Examples" style="width:50em;">
@@ -624,6 +639,8 @@
 </div>
         </egXML>
       </div>
+    </teipluswp>
+    <teipluswp n="Credits">
       <div>
         <head>Images and captions</head>
         <p>TEI <gi>graphic</gi> elements are transformed to HTML <gi>img</gi> elements so that images may be displayed in the browser.</p>
@@ -633,6 +650,7 @@
           <figDesc>A playful image of the TEI Boilerplate team.</figDesc>
         </figure>
       </div>
+    </teipluswp>
     </body>
   </text>
 </TEI>
