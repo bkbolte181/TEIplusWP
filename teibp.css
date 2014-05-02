@@ -64,16 +64,6 @@
 .mono {
   font-family: Courier,monospace;
 }
-.page-setup {
-  margin-left: 2em;
-  margin-right: 4em;
-  padding: 2.5em;
-  font-family: "Gentium Book Basic", Cochin, Georgia, Serif;
-  font-size: 14pt;
-  background-color: #ebebeb;
-  color: #292929;
-  width: 33em;
-}
 .table-border {
   /*
 border-left: 2px solid @border-color;
@@ -656,11 +646,9 @@ TEI head {
 }
 body > head {
   font-size: 180%;
-  text-indent: -0.5em;
 }
 div > head {
   font-size: 170%;
-  text-indent: -0.5em;
 }
 div > div > head {
   font-size: 155%;
@@ -799,11 +787,6 @@ kinesic {
   /* Empty Rule Set */
 }
 /* l */
-l {
-  display: block;
-  padding-left: 2em;
-  text-indent: -2em;
-}
 list[type="gloss"] > label {
   display: block;
   margin-top: 0.25em;
@@ -1656,6 +1639,8 @@ background:white;
   margin-top: 2em;
   margin-bottom: 2em;
   border-bottom: 1px solid #999;
+  /* text-indent: 0.5em; */
+  text-align: center;
 }
 TEI > text {
   display: block;
@@ -1811,18 +1796,6 @@ html > body {
   margin: 0;
   padding: 0;
 }
-html {
-  margin: 0;
-  padding: 0;
-  margin-left: 2em;
-  margin-right: 4em;
-  padding: 2.5em;
-  font-family: "Gentium Book Basic", Cochin, Georgia, Serif;
-  font-size: 14pt;
-  background-color: #ebebeb;
-  color: #292929;
-  width: 33em;
-}
 img {
   border: 1px solid #aaaaaa;
 }
@@ -1918,3 +1891,8 @@ div.facsImage img:first-child {
 .head-font {
   font-family: Arvo, sans-serif;
   font-weight: normal;
+}
+
+/* For Paginator */
+#pagingControls ul{display:block;}
+#pagingControls li{display:inline; padding:0 0.2em}

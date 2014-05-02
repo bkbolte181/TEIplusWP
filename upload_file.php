@@ -1,6 +1,5 @@
 <html>
 <head>
-<script type='text/javascript'>
 <?php
 $file = $_FILES["file"];
 $type = substr($file["name"], -3, 3);
@@ -11,18 +10,17 @@ if ($file["error"] > 0) {
 } else {
   if ($type == "xml") {
     move_uploaded_file($file["tmp_name"], "content/" . $file["name"]);
-    echo "console.log('Stored in: " . "content/" . $file["name"] . "')";
+    echo "Stored in: content/" . $file["name"] . "<br>";
   } else if (in_array($type, $imageformats)) {
     move_uploaded_file($file["tmp_name"], "images/" . $file["name"]);
-    echo "console.log('Stored in: " . "images/" . $file["name"] . "')";
+    echo "Stored in: images/" . $file["name"] . "<br>";
   } else {
-    echo "console.log('File " . $file["name"] . " was not stored on the server. It did not match a valid filetype.')";
+    echo "File " . $file["name"] . " was not stored on the server. It did not match a valid filetype.<br>";
   }
 }
 
 ?>
-</script>
 <head>
-<body onload="javascript:close()">
+<body>
 </body>
 </html>

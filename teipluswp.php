@@ -30,7 +30,6 @@ remove_filter('the_excerpt', 'wpautop');
 
 if (!function_exists('main_teiwp')) {
   function main_teiwp($content) {
-    $curDir = dirname(__FILE__); //Get current directory
     $filesOnServer = array();
 
     if ($handle = opendir(dirname(__FILE__) . "/content")) {
@@ -40,18 +39,17 @@ if (!function_exists('main_teiwp')) {
 	}
       }
     }
-    chdir('/home/public/wp-content/plugins/teipluswp/content/');
-    // Using @teipluswp:<file.xml>
+    chdir(dirname(__FILE__) . '/content/');
+    $xslDoc = new DOMDocument();
+    $xslDoc->load("teibp.xsl");
     foreach ($filesOnServer as $file) {
       if (preg_match('~teipluswp:'.$file.'~', $content)) {
-      $content = preg_replace('#@teipluswp:'.$file.'#',
-      			      '<br><br>
-<iframe
-  class="teidoc"
-  allowtransparency="true"
-  scrolling="yes"
-  src="/wp-content/plugins/teipluswp/content/'.$file.'">
-</iframe><br>',
+	$proc = new XSLTProcessor();
+	$proc->importStylesheet($xslDoc);
+	$xmlDoc = new DOMDocument();
+	$xmlDoc->load($file);
+	$content = preg_replace('#@teipluswp:'.$file.'#',
+				$proc->transformToXML($xmlDoc),
       			      $content);
       }
     }
@@ -65,34 +63,18 @@ if (!function_exists('main_teiwp')) {
   }
 }
 
-if (!function_exists('tei_jscript')) {
-  
-  function tei_jscript() {
-    /* For javascript functions.
-     * resizeToFit(obj) resizes iframes so that they fit all their content.
-     */
-    echo '<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
-<script>
-  function resizeToFit(obj) {
-    obj.style.height = "0px";
-    obj.style.height = (obj.contentWindow.document.body.scrollHeight) + "px";
-  }
-</script>
-';
-  }
+function tei_css() {
+  wp_enqueue_style('teipluswp', plugins_url() . '/teipluswp/teibp.css');
+  wp_enqueue_style('teipluswp', plugins_url() . '/teipluswp/build_tools/node_modules/less/bench.css');
 }
 
-add_action('wp_head', 'tei_jscript');
+add_action('wp_enqueue_scripts', 'tei_css');
 
-if (!function_exists('tei_css')) {
-  function tei_css() {
-    echo '<style type="text/css">
-.teidoc { width:150%; height:700px; }
-    </style>';
-  }
+function tei_js() {
+  wp_enqueue_script('teipluswp', plugins_url() . '/teipluswp/js/teibp.js');
 }
 
-add_action('wp_head', 'tei_css');
+add_action('wp_enqueue_scripts', 'tei_js');
 
 if (function_exists('main_teiwp')) {
   add_filter('the_content', 'main_teiwp');

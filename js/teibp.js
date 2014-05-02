@@ -1,35 +1,61 @@
-function clearPageBreaks(){
-	$("pb").css("display","none");
-	$(".-teibp-pb").css("display","none");
-}
-
-function addPageBreaks(){
-	$("pb").css("display","block");	
-	$(".-teibp-pb").css("display","block");
-
-}
-
-function init(){
-	document.getElementById('pbToggle').onclick = function(){
-		if(document.getElementById('pbToggle').checked){
-			clearPageBreaks();
-		}else{
-			addPageBreaks();
-		}
-	};
-	addPageBreaks();
-	document.getElementById('pbToggle').checked = false;
-}
-
 //If W3C event model used, prefer that. Window events are fallbacks
 if(document.addEventListener){
-	//W3C event model used
-	document.addEventListener("DOMContentLoaded", init, false);
-	window.addEventListener("load", init, false);
+    //W3C event model used
+    document.addEventListener("DOMContentLoaded", init, false);
+    window.addEventListener("load", init, false);
 } else if(document.attachEvent){
-	//IE event model used
-	document.attachEvent( "onreadystatechange", init);
-	window.attachEvent( "onload", init);
+    //IE event model used
+    document.attachEvent( "onreadystatechange", init);
+    window.attachEvent( "onload", init);
+}
+
+// Paginator from http://www.script-tutorials.com/how-to-create-easy-pagination-with-jquery/
+var Imtech = {}
+Imtech.Pager = function() {
+    this.paragraphsPerPage = 3;
+    this.currentPage = 1;
+    this.pagingControlsContainer = '#pagingControls';
+    this.pagingContainerPath = '#tei_wrapper';
+
+    this.numPages = function() {
+	var numPages = 0;
+	if (this.paragraphs != null && this.paragraphsPerPage != null) {
+	    numPages = Math.ceil(this.paragraphs.length / this.paragraphsPerPage);
+	}
+	return numPages;
+    };
+
+    this.showPage = function(page) {
+	this.currentPage = page;
+	var html = '';
+	
+	this.paragraphs.slice((page-1) * this.paragraphsPerPage,
+			      ((page-1) * this.paragraphsPerPage)
+			      + this.paragraphsPerPage).each(function() {
+				  html += '<div>' + jQuery(this).html() + '</div>';
+			      });
+	jQuery(this.pagingContainer).html(html);
+	renderControls(this.pagingControlsContainer, this.currentPage, this.numPages());
+    }
+    
+    var renderControls = function(container, currentPage, numPages) {
+	var pagingControls = 'Page: <ul>';
+	for (var i = 1; i <= numPages; i++) {
+	    if (i != currentPage) {
+		pagingControls += '<li><a href="#" onclick="pager.showPage(' + i + '); return false;">' + i + '</a></li>';
+	    } else {
+		pagingControls += '<li>' + i + '</li>';
+	    }
+	}
+
+	pagingControls += '</ul>';
+
+	jQuery(container).html(pagingControls);
+    }
+}
+
+function init() {
+    // empty
 }
 
 function switchThemes(theme) {
@@ -63,10 +89,6 @@ function showFacs(num, url, id) {
 	facsWindow.document.write("</head>")
 	facsWindow.document.write("<body>")
 	facsWindow.document.write($("teiHeader")[0].outerHTML)
-	//facsWindow.document.write("<teiHeader>" + $("teiHeader")[0].html() + "</teiHeader>")
-	//facsWindow.document.write($('<teiHeader>').append($('teiHeader').clone()).html();)
-	
-	//facsWindow.document.write($("teiHeader")[0].outerHTML)
 	facsWindow.document.write("<div id='resizable'>")
 	facsWindow.document.write("<div class='facsImage'>")
 	$(".-teibp-thumbnail").each(function() {
@@ -75,7 +97,7 @@ function showFacs(num, url, id) {
 	facsWindow.document.write("</div>")
 	facsWindow.document.write("</div>")
 	facsWindow.document.write($("footer")[0].outerHTML)
-	
+
 	facsWindow.document.write("</body>")
 	facsWindow.document.write("</html>")
 	facsWindow.document.close()
