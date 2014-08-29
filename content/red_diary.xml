@@ -1,6 +1,8 @@
 <?xml-stylesheet type="text/xsl" href="teibp.xsl"?>
 <TEI xmlns="http://www.tei-c.org/ns/1.0">
-  <paginate/>
+  <!-- Add this to enable pagination. The "element" attribute
+       indicates what to paginate. -->
+  <paginate element="div"/>
     <teiHeader>
         <fileDesc>
             <titleStmt>

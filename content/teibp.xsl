@@ -24,11 +24,12 @@
 	<xsl:output encoding="UTF-8" method="xml" omit-xml-declaration="yes"/>
 	
 	<xsl:param name="teibpHome" select="'http://dcl.slis.indiana.edu/teibp/'"/>
-	<xsl:param name="inlineCSS" select="true()"/>
-	<xsl:param name="includeToolbox" select="true()"/>
-	<xsl:param name="includeAnalytics" select="true()"/>
+	<xsl:param name="inlineCSS" select="false()"/>
+	<xsl:param name="includeToolbox" select="false()"/>
+	<xsl:param name="includeAnalytics" select="false()"/>
 	<xsl:param name="displayPageBreaks" select="true()"/>
 	<xsl:param name="paginate" select="tei:TEI/tei:paginate"/>
+	<xsl:param name="paginationElement" select="tei:TEI/tei:paginate/@element"/>
 	
 	
 	<!-- special characters -->
@@ -46,7 +47,7 @@
 		<xsl:param name="filePrefix" select="'http://dcl.slis.indiana.edu/teibp'"/>
 		
 	-->
-	<xsl:param name="filePrefix" select="'..'"/>
+	<xsl:param name="filePrefix" select="'/wp-content/plugins/TEIplusWP/content/'"/>
 	
 	<xd:doc xmlns:xd="http://www.oxygenxml.com/ns/doc/xsl">
 		<xd:desc>
@@ -67,7 +68,8 @@
 	      jQuery(document).ready(function() {
 	        pager.paragraphsPerPage = 1;
 		pager.pagingContainer = jQuery('#tei_wrapper');
-		pager.paragraphs = jQuery(pager.pagingContainer).find('div');
+		pager.paragraphs =
+		jQuery(pager.pagingContainer).find('<xsl:value-of select="$paginationElement"/>');
 		pager.showPage(1);
 	      });
 	    </script>
