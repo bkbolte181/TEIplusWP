@@ -10,29 +10,40 @@ uploading and whatnot.
 $data = array();
 
 if (isset($_GET['upload'])) {
-    // Uploading a file
+    // Method for uploading a file, called by passing 'upload' as a GET argument
+    
     $files = array();
     $uploaddir = './content/';
     
     foreach($_FILES as $file) {
         if (move_uploaded_file($file['tmp_name'], $uploaddir . basename($file['name']))) {
             $files[] = $uploaddir . $file['name'];
-            $data = array('files' => files);
+            $data = array('info' => 'Uploaded ' . $file['name']);
         } else {
-            $data = array('error' => 'There was an error uploading your files.');
+            $data = array('error' => 'error', 'info' => 'There was an error uploading your file.');
         }
     }
 } elseif (isset($_GET['delete'])) {
-    // Deleting a file
+    // Method for deleting a file, called by passing 'delete' as a GET argument
+    
+    // Get all files with name 'filename'
     $files = glob(dirname(__FILE__) . '/{images,content}/' . $_POST['filename'], GLOB_BRACE);
-    foreach ($files as $file) {
-        unlink($file);
-    }
-    $data = array('success' => 'Successfully deleted ' . $_POST['filename'], 'files' => $files, 'filename' => $_POST['filename']);
+    
+    // Delete first matched file
+    $file = $files[0];
+    unlink($file);
+    
+    $data = array('info' => 'Deleted ' . basename($file));
 } elseif (isset($_GET['getallfiles'])) {
-    // Return all the currently uploaded files
+    // Method for getting all uploaded files, called by passing 'getallfiles' as a GET argument
+    
+    // For storing the XML files' info
     $xmlfiles = array();
+    
+    // For storing the image files' info
     $images = array();
+    
+    // Get all XML files
     if ($handle = opendir(dirname(__FILE__) . "/content")) {
         while (false !== ($entry = readdir($handle))) {
             $filepath = "/wp-content/plugins/teipluswp/content/" . $entry;
@@ -42,6 +53,8 @@ if (isset($_GET['upload'])) {
             }
         }
     }
+    
+    // Get all image files
     if ($handle = opendir(dirname(__FILE__) . "/images")) {
         while (false !== ($entry = readdir($handle))) {
             $filepath = "/wp-content/plugins/teipluswp/images/" . $entry;
@@ -51,10 +64,19 @@ if (isset($_GET['upload'])) {
             }
         }
     }
-    $data = array('images' => $images, 'files' => $xmlfiles);
+    
+    // Make data array, to return as JSON
+    if (empty($images) && empty($xmlfiles)) {
+        $data = array('error' => 'error', 'info' => 'There are no currently uploaded files.');
+    } else {
+        $data = array('images' => $images, 'files' => $xmlfiles, 'info' => 'Read all files');
+    }
 } else {
-    $data = array('error' => 'Form was submitted', 'formData' => $_POST);
+    // Default error handling
+    
+    $data = array('error' => 'error', 'info' => 'You must pass a GET argument from one of the following: ["upload", "delete", "getallfiles"]');
 }
 
+// Return JSON to the user
 echo json_encode($data);
 ?>

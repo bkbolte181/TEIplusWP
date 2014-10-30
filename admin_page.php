@@ -8,8 +8,19 @@
         <div id="file-status"></div>
     </form>
     
+    <div class="teiwp-list-files">
+        <div class="teiwp-title">TEI Files:</div>
+        <ul class="teiwp-all-files"><!-- Updated using jQuery --></ul>
+    </div>
+    
+    <div class="teiwp-list-images">
+        <div class="teiwp-title">Images:</div>
+        <ul class="teiwp-all-images"><!-- Updated using jQuery --></ul>
+    </div>
+    
     <script type="text/javascript">
         var files;
+        var i = 0;
         
         jQuery(document).ready(updateFiles());
         jQuery("input[type=file]").on("change", uploadFiles);
@@ -17,9 +28,6 @@
         function uploadFiles(event) {
             files = event.target.files;
             event.preventDefault();
-            
-            // Alert user that the file is uploading
-            jQuery('#file-status').html('Uploading...');
             
             var data = new FormData();
             jQuery.each(files, function(key, val) {
@@ -36,15 +44,15 @@
                 contentType: false,
                 success: function(data, textStatus, jqXHR) {
                     if (typeof data.error === 'undefined') {
-                        jQuery('#file-status').html('Uploaded ' + data.filename);
                         jQuery('#file-select').val('');
                         updateFiles();
-                    } else {
-                        console.log('ERRORS: ' + data.error);
                     }
+                    console.log(data.info);
+                    setStatus(data.info);
                 },
                 error: function(jqXHR, textStatus, errorThrown) {
                     console.log('ERRORS: ' + textStatus);
+                    setStatus('Could not connect to the server.');
                 },
             });
         }
@@ -61,94 +69,76 @@
                     filename: myfile,
                 },
                 success: function(data, textStatus, jqXHR) {
+                    console.log(data.info);
+                    setStatus(data.info);
                     if (typeof data.error === 'undefined') {
-                        console.log(data)
                         updateFiles();
-                    } else {
-                        console.log('ERRORS: ' + data.error);
                     }
                 },
                 error: function(data, textStatus, jqXHR) {
                     console.log('ERRORS: ' + textStatus);
+                    setStatus('Could not connect to the server.');
                 }
             });
         }
         
         function updateFiles() {
-            // Clear the list of files
+            // Get the currently uploaded files from the server and display them in the given tags
+            
+            jQuery('.teiwp-all-images').append('<img src="/wp-content/plugins/teipluswp/ajax-loader.gif"/>');
+            jQuery('.teiwp-all-files').append('<img src="/wp-content/plugins/teipluswp/ajax-loader.gif"/>');
             
             jQuery.ajax({
                 url: '/wp-content/plugins/teipluswp/handler.php?getallfiles',
                 type: 'POST',
                 dataType: 'json',
                 success: function(data, textStatus, jqXHR) {
+                    // If the server response is successful, update the lists
+                    
                     if (typeof data.error === 'undefined') {
                         jQuery('.teiwp-all-images').html('');
+                        jQuery('.teiwp-all-files').html('');
+                        
+                        // Update images list
                         for (var img in data.images) {
                             var myimg = data.images[img];
                             jQuery('.teiwp-all-images').append(makeList(myimg.name, myimg.filepath));
                         }
-                        jQuery('.teiwp-all-files').html('');
+                        
+                        // Update images list
                         for (var file in data.files) {
                             var myfile = data.files[file];
                             jQuery('.teiwp-all-files').append(makeList(myfile.name, myfile.filepath));
                         }
-                    } else {
-                        console.log('ERRORS: ' + data.error);
                     }
+                    console.log(data.info);
                 },
                 error: function(data, textStatus, jqXHR) {
                     console.log('ERRORS: ' + textStatus);
+                    setStatus('Could not connect to the server.');
                 }
             });
         }
         
         function makeList(filename, filepath) {
-            return '<li><a href=' + filepath + '">' + filename + '</a> (<a href="javascript:deleteFile(\'' + filename + '\')">x</a>)</li>';
+            // Standard form for creating one element in the list
+            
+            return '<li><a href="' + filepath + '">' + filename + '</a> (<a href="javascript:deleteFile(\'' + filename + '\')">x</a>)</li>';
+        }
+        
+        function setStatus(stat) {
+            // Display any information, pretty simple
+            jQuery('#file-status').append('<div class="new-status" id="status' + i + '">' + stat + '</div>');
+            
+            setTimeout(function(ci) {
+                jQuery('#status' + ci).slideUp();
+            }, 5000, i);
+            
+            i++;
+        }
+        
+        function removeDiv(id) {
+            jQuery('#' + id).slideUp();
         }
     </script>
-    
-    <div class="teiwp-list-files">
-        <div class="teiwp-title">TEI Files:</div>
-        <ul class="teiwp-all-files">
-        <?php
-        //Lists all currently uploaded files
-            if ($handle = opendir(dirname(__FILE__) . "/content")) {
-                while (false !== ($entry = readdir($handle))) {
-                    $filepath = "/wp-content/plugins/teipluswp/content/" . $entry;
-                    if ($entry[0] != "." && substr($entry, -3, 3) == "xml") {
-                        echo "<li>";
-                        echo "<a href='" . $filepath . "'>$entry</a> ";
-                        echo "<form style='display:inline;' name='deletefile" . $entry . "' action='/wp-content/plugins/teipluswp/delete_file.php' target='_blank' method='post'><input type='hidden' name='filename' value='" . $entry . "'>";
-                        echo "(<a href='javascript:document.forms[&quot;deletefile" . $entry . "&quot;].submit();'>x</a>)";
-                        echo "</form>";
-                        echo "</li>";
-                    }
-                }
-                echo "</ol>";
-            }
-        ?>
-        </ul>
-    </div>
-    
-    <div class="teiwp-list-images">
-        <div class="teiwp-title">Images:</div>
-        <ul class="teiwp-all-images">
-        <?php
-        //Lists all currently uploaded images
-            if ($handle = opendir(dirname(__FILE__) . "/images")) {
-                while (false !== ($entry = readdir($handle))) {
-                    if ($entry[0] != ".") {
-                        echo "<li>";
-                        echo "<a href='" . "/wp-content/plugins/teipluswp/images/" . $entry . "'>$entry</a> ";
-                        echo "<form style='display:inline;' name='deletefile" . $entry . "' action='/wp-content/plugins/teipluswp/delete_file.php' target='_blank' method='post'><input type='hidden' name='filename' value='" . $entry . "'>";
-                        echo "(<a href='javascript:document.forms[&quot;deletefile" . $entry . "&quot;].submit();'>x</a>)";
-                        echo "</form>";
-                        echo "</li>";
-                    }
-                }
-            }
-        ?>
-        </ul>
-    </div>
 </div>
