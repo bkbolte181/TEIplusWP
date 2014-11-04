@@ -25,47 +25,58 @@
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-remove_filter('the_content', 'wpautop');
-remove_filter('the_excerpt', 'wpautop');
+// Stop from automatically converting to paragraphs, to let the XSLT take over
+// remove_filter('the_content', 'wpautop');
+// remove_filter('the_excerpt', 'wpautop');
 
 if (!function_exists('main_teiwp')) {
-  function main_teiwp($content) {
-    $filesOnServer = array();
-
-    if ($handle = opendir(dirname(__FILE__) . "/content")) {
-      while (false !== ($entry = readdir($handle))) {
-	if ($entry[0] != ".") {
-	  array_push($filesOnServer, $entry);
-	}
-      }
+    function main_teiwp($content) {
+        // Collect the currently uploaded files
+        $filesOnServer = array();
+        
+        // Read in all the files in the "/content" directory
+        if ($handle = opendir(dirname(__FILE__) . "/content")) {
+            while (false !== ($entry = readdir($handle))) {
+                if ($entry[0] != ".") {
+                    $e = array("path" => $entry, "realpath" => dirname(__FILE__) . "/content/" . $entry);
+                    array_push($filesOnServer, $e);
+                }
+            }
+        }
+        
+        // Change to "/xsl" directory
+        chdir(dirname(__FILE__) . '/xsl/');
+        
+        // Load xsl document
+        $xslDoc = new DOMDocument();
+        $xslDoc->load("teialt.xsl");
+        
+        // Replace tags with formatted XSL
+        foreach ($filesOnServer as $file) {
+            if (preg_match('~teipluswp:'.$file['path'].'~', $content)) {
+                $proc = new XSLTProcessor();
+                $proc->importStylesheet($xslDoc);
+                $xmlDoc = new DOMDocument();
+                $xmlDoc->load($file['realpath']);
+                $content = preg_replace('#@teipluswp:'.$file['path'].'#',
+                                        $proc->transformToXML($xmlDoc),
+                                        $content);
+            }
+        }
+        
+        // If the user is the admin, alert for incorrect tags
+        if (current_user_can('manage_options')) {
+            $content = preg_replace('~@teipluswp:(.+)~',' <div class="alert">ALERT: Invalid tag <i>@teipluswp:${1}</i></div>', $content);
+        } else {
+            $content = preg_replace('#@teipluswp:.+#', '', $content);
+        }
+        return $content;
     }
-    chdir(dirname(__FILE__) . '/content/');
-    $xslDoc = new DOMDocument();
-    $xslDoc->load("teibp.xsl");
-    foreach ($filesOnServer as $file) {
-      if (preg_match('~teipluswp:'.$file.'~', $content)) {
-	$proc = new XSLTProcessor();
-	$proc->importStylesheet($xslDoc);
-	$xmlDoc = new DOMDocument();
-	$xmlDoc->load($file);
-	$content = preg_replace('#@teipluswp:'.$file.'#',
-				$proc->transformToXML($xmlDoc),
-      			      $content);
-      }
-    }
-    if (current_user_can('manage_options')) {
-      $content = preg_replace('~@teipluswp:(.+)~',' <b>ALERT: Invalid tag</b> <i>@teipluswp:${1}</i>', $content);
-    } else {
-      $content = preg_replace('#@teipluswp:.+#', '', $content);
-    }
-
-    return $content;
-  }
 }
 
 function tei_css() {
-  wp_enqueue_style('teipluswp', plugins_url() . '/teipluswp/teibp.css');
-  wp_enqueue_style('teipluswp', plugins_url() . '/teipluswp/build_tools/node_modules/less/bench.css');
+    wp_enqueue_style('teipluswp', plugins_url() . '/teipluswp/teialt.css');
+    wp_enqueue_style('teipluswp', plugins_url() . '/teipluswp/build_tools/node_modules/less/bench.css');
 }
 
 add_action('wp_enqueue_scripts', 'tei_css');

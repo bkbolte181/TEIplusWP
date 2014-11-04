@@ -64,14 +64,13 @@
 	    <xsl:call-template name="getHeader"/>
 	    <p id="pagingControls"></p>
 	    <script type="text/javascript">
-	      var pager = new Imtech.Pager();
-	      jQuery(document).ready(function() {
-	        pager.paragraphsPerPage = 1;
-		pager.pagingContainer = jQuery('#tei_wrapper');
-		pager.paragraphs =
-		jQuery(pager.pagingContainer).find('<xsl:value-of select="$paginationElement"/>');
-		pager.showPage(1);
-	      });
+            var pager = new Imtech.Pager();
+            jQuery(document).ready(function() {
+                pager.paragraphsPerPage = 1;
+                pager.pagingContainer = jQuery('#tei_wrapper');
+                pager.paragraphs = jQuery(pager.pagingContainer).find('<xsl:value-of select="$paginationElement"/>');
+                pager.showPage(1);
+            });
 	    </script>
 	  </xsl:if>
 	  <div id="tei_wrapper">
